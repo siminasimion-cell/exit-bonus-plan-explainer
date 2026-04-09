@@ -392,6 +392,76 @@
       border-top: 1px solid rgba(71,85,105,0.3);
     }
 
+    /* ── Password gate ── */
+    #gate {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+    }
+    #gate.hidden { display: none; }
+    #mainContent.locked { display: none; }
+    .gate-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 48px 40px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+    }
+    .gate-card h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, #fff 0%, #c4b5fd 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .gate-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+    }
+    .gate-input {
+      width: 100%;
+      padding: 14px 18px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 16px;
+    }
+    .gate-input:focus { border-color: var(--primary-light); }
+    .gate-input.error { border-color: #EF4444; }
+    .gate-btn {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: var(--gradient-1);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .gate-btn:hover { opacity: 0.9; }
+    .gate-error {
+      color: #FCA5A5;
+      font-size: 0.85rem;
+      margin-top: 12px;
+      min-height: 1.2em;
+    }
+
     /* ── Scroll animations ── */
     .fade-up {
       opacity: 0;
@@ -414,6 +484,20 @@
   </style>
 </head>
 <body>
+
+<!-- ═══════════════ PASSWORD GATE ═══════════════ -->
+<div id="gate">
+  <div class="gate-card">
+    <h2>Welcome</h2>
+    <p>Please enter the access code provided in your offer communication to continue.</p>
+    <input type="password" class="gate-input" id="gateInput" placeholder="Enter access code" autocomplete="off">
+    <button class="gate-btn" id="gateBtn" onclick="checkPass()">Continue</button>
+    <div class="gate-error" id="gateError"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ MAIN CONTENT (hidden until authenticated) ═══════════════ -->
+<div id="mainContent" class="locked">
 
 <!-- ═══════════════ HERO ═══════════════ -->
 <header class="hero">
@@ -607,7 +691,33 @@
   <p>This page is for informational purposes only and does not constitute a binding agreement. The Change in Control Bonus Plan is subject to Board approval. Specific terms and conditions will be communicated separately.</p>
 </div>
 
+</div><!-- end #mainContent -->
+
 <script>
+  // ═══════════════════════════════════════════
+  // PASSWORD GATE
+  // ═══════════════════════════════════════════
+  function checkPass() {
+    const input = document.getElementById('gateInput');
+    const gate = document.getElementById('gate');
+    const main = document.getElementById('mainContent');
+    const error = document.getElementById('gateError');
+
+    if (input.value === 'welcome2030!') {
+      gate.classList.add('hidden');
+      main.classList.remove('locked');
+    } else {
+      input.classList.add('error');
+      error.textContent = 'Incorrect access code. Please try again.';
+      setTimeout(() => input.classList.remove('error'), 1500);
+    }
+  }
+
+  // Allow Enter key to submit
+  document.getElementById('gateInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') checkPass();
+  });
+
   // ═══════════════════════════════════════════
   // PAYOUT DATA  — extracted from the letter
   // Format: payoutTable[performance][tier] = [lowMOI, highMOI]
